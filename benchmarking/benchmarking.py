@@ -36,9 +36,7 @@ if __name__ == "__main__":
     logging.info(
         "Benchmarking C++ and Python file reading speed on all folders in benchmarking."
     )
-    allFolders = [
-        folder for folder in os.listdir("./benchmarking") if os.path.isdir(folder)
-    ]
+    benchMarkFolder = "./benchmarking/benchmarkfolders"
     allTimes = {}
     cppPath = "./benchmarking/cppBenchmark"
     # 'bytes', 'kilobytes', 'megabytes', 'gigabytes', 'terabytes'
@@ -47,20 +45,19 @@ if __name__ == "__main__":
     logging.info("Benchmarking Python...")
     # Python folder size calculation
     pythonStartTime = time.time()
-    for folder in allFolders:
-        folderSizeBytes = 0
-        for root, dirs, files in os.walk(folder):
-            for file in files:
-                fileAmount += 1
-                curFile = os.path.join(root, file)
-                allBytes[0] += os.path.getsize(curFile)
-                idx = 0
-                while idx < len(allBytes) - 1:
-                    while allBytes[idx] > 1000:
-                        transferredBytes = allBytes[idx] // 1000
-                        allBytes[idx + 1] += transferredBytes
-                        allBytes[idx] -= transferredBytes * 1000
-                    idx += 1
+    folderSizeBytes = 0
+    for root, dirs, files in os.walk(benchMarkFolder):
+        for file in files:
+            fileAmount += 1
+            curFile = os.path.join(root, file)
+            allBytes[0] += os.path.getsize(curFile)
+            idx = 0
+            while idx < len(allBytes) - 1:
+                while allBytes[idx] > 1000:
+                    transferredBytes = allBytes[idx] // 1000
+                    allBytes[idx + 1] += transferredBytes
+                    allBytes[idx] -= transferredBytes * 1000
+                idx += 1
     amount, unit = convertBytesToString(allBytes)
     pythonEndTime = time.time()
     pythonTotalTime = pythonEndTime - pythonStartTime
@@ -69,7 +66,7 @@ if __name__ == "__main__":
 
     # C++ folder size calculation
     parameters = [cppPath]
-    parameters.extend(allFolders)
+    parameters.append(benchMarkFolder)
     cppStartTime = time.time()
     subprocess.run(parameters, check=True)
     cppEndTime = time.time()
