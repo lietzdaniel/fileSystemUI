@@ -3,13 +3,15 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
-
+#include <chrono>
+#include <cmath>
 
 std::tuple<float, std::string> convertBytesToString(const std::vector<int> &allBytes)
 {
     std::vector<std::string> units{"bytes", "kilobytes", "megabytes", "gigabytes", "terabytes"};
     float amount = 0.0;
     std::string unit = "";
+    
     for (int i = units.size() - 1; i >= 0; i--)
     {
 
@@ -35,7 +37,7 @@ int main(int argc, char *argv[])
     int fileAmount = 0;
     if (argc >= 2)
     {
-
+        auto startTime = std::chrono::high_resolution_clock::now();
         for (int i = 1; i < argc; ++i)
         {
             for (const auto &entry : fs::recursive_directory_iterator(fs::path(argv[i])))
@@ -61,7 +63,11 @@ int main(int argc, char *argv[])
             }
         }
         const auto [amount, unit] = convertBytesToString(allBytes);
+        auto endTime = std::chrono::high_resolution_clock::now();
+        auto totalTime = std::chrono::duration_cast<std::chrono::duration<double>>(endTime - startTime);
+        float roundedTime = std::round(totalTime.count()* 10000) / 10000;
         std::cout << "Total size of all folders: " << amount << " " << unit << "in " << fileAmount <<  " files."<< std::endl;
+        std::cout << "Finished Benchmarking C++. The calculation took " << roundedTime  << " seconds." << std::endl;
         return 0;
     }
     else
