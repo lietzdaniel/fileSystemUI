@@ -36,16 +36,17 @@ if __name__ == "__main__":
     logging.info(
         "Benchmarking C++ and Python file reading speed on all folders in benchmarking."
     )
+    
     benchMarkFolder = "./benchmarking/benchmarkfolders"
-    allTimes = {}
     cppPath = "./benchmarking/cppBenchmark"
     # 'bytes', 'kilobytes', 'megabytes', 'gigabytes', 'terabytes'
     allBytes = [0, 0, 0, 0, 0]
     fileAmount = 0
     logging.info("Benchmarking Python...")
     # Python folder size calculation
-    pythonStartTime = time.time()
+    
     folderSizeBytes = 0
+    pythonStartTime = time.time()
     for root, dirs, files in os.walk(benchMarkFolder):
         for file in files:
             fileAmount += 1
@@ -62,14 +63,5 @@ if __name__ == "__main__":
     pythonEndTime = time.time()
     pythonTotalTime = pythonEndTime - pythonStartTime
     logging.info(f"Total size of all folders: {amount} {unit} in {fileAmount} files.")
-    logging.info(f"Finished Benchmarking Python. The calculation took {pythonTotalTime} seconds.")
+    logging.info(f"Finished Benchmarking Python. The calculation took {round(pythonTotalTime,4)} seconds.")
 
-    # C++ folder size calculation
-    parameters = [cppPath]
-    parameters.append(benchMarkFolder)
-    cppStartTime = time.time()
-    subprocess.run(parameters, check=True)
-    cppEndTime = time.time()
-    cppTotalTime = cppEndTime - cppStartTime
-
-    logging.info(f"Finished Benchmarking C++. The calculation took {cppTotalTime} seconds.")
