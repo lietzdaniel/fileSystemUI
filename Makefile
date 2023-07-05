@@ -6,3 +6,6 @@ test:
 
 benchmark:
 	/bin/sh ./benchmarking/benchmark.sh
+
+run: 
+	poetry run python main.py
