@@ -2,22 +2,23 @@ import tkinter as tk
 import os
 from tkinter import ttk
 from .folderinfo import returnItems
-from .datatypes import Bytes
+from .datatypes import Bytes, Datatype
 import webbrowser
-
+from PIL import Image, ImageTk
 class fileGui:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Filesystem GUI")
         self.tree = ttk.Treeview(self.window)
         self.tree.bind("<Double-Button-1>", self.item_double_clicked)
+        self.tree.image_references = []
+
         self.undoStack = []
         self.redoStack = []
         self.curDir = os.getcwd() #TODO: Update to root?
         self.back_button = tk.Button( self.window, text="Back", command=self.go_back)
         self.back_button.pack(side=tk.LEFT)
         self.back_button.configure(state='disabled')
-        
         self.forward_button = tk.Button( self.window, text="Forward", command=self.go_forward)
         self.forward_button.pack(side=tk.LEFT)
         self.forward_button.configure(state='disabled')
@@ -51,17 +52,19 @@ class fileGui:
             
 
     def sort_by_column(self, column, descending):
-        data = [
-            (self.tree.set(child, column), child)
-            for child in self.tree.get_children("")
-        ]
+        if column == "#0":
+            data= [(self.tree.item(item)["text"], item) for item in self.tree.get_children("")]
+        else:
+            data = [
+                (self.tree.set(child, column), child)
+                for child in self.tree.get_children("")
+            ]
         if column == "file_size":
             data.sort(
                 reverse=descending,
                 key=lambda x: float(x[0].split(" ")[0])
                 * (1000 ** (Bytes[x[0].split(" ")[1]].value)),
             )
-
         else:
             data.sort(reverse=descending)
         for index, (_, child) in enumerate(data):
@@ -109,13 +112,15 @@ class fileGui:
         self.tree.previous_sort_descending = descending
 
     def runGui(self):
-        self.tree["columns"] = ("file_name", "file_size", "last_modified")
-        self.tree.heading("#0", text="", anchor="w")
-        self.tree.column("#0", width=0, stretch=tk.NO)
+       
+        self.tree["columns"] = (  "file_size", "last_modified")
+      
         self.tree.heading(
-            "file_name",
+            "#0",
             text="File Name",
-            command=lambda: self.on_column_click("file_name"),
+            command=lambda: self.on_column_click("#0"),
+            
+          
         )
         self.tree.heading(
             "file_size",
@@ -136,9 +141,19 @@ class fileGui:
         self.tree.configure(yscrollcommand=scrollbar.set)
 
         for file in returnItems(os.getcwd()):
-            fileName, fileSize, lastModified = file[0], file[1], file[2]
-            id = self.tree.insert("", tk.END, values=(fileName, fileSize, lastModified))
+            fileName, fileSize, lastModified, fileType = file[0], file[1], file[2], file[3]
+            try:
 
+                fileImage = Image.open(os.path.join(os.getcwd(),"gui","fileLogos",f"{fileType.name}.png"))
+                
+                fileImage = fileImage.resize((16,16))
+                fileImage = ImageTk.PhotoImage(fileImage)
+                
+                self.tree.image_references.append(fileImage)
+                self.tree.insert("", tk.END, text = fileName , values=( fileSize, lastModified), image=fileImage)
+            except Exception as e:
+                print(e)
+                self.tree.insert("", tk.END, text = fileName ,values=( fileSize, lastModified))
         self.tree.pack(fill=tk.BOTH, expand=True)
 
         self.window.mainloop()
