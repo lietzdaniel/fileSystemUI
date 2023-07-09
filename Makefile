@@ -4,8 +4,9 @@ install:
 test:
 	poetry run pytest
 
-benchmark:
-	/bin/sh ./benchmarking/benchmark.sh
+make benchmark folder=gui:
+	
+	/bin/sh ./benchmarking/benchmark.sh $(folder)
 
 run: 
 	poetry run python main.py

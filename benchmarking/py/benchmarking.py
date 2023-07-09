@@ -1,7 +1,7 @@
 import os
 import time
 import logging
-import subprocess
+import sys
 from typing import List, Tuple
 
 logging.basicConfig(level=logging.INFO)
@@ -33,16 +33,17 @@ def convertBytesToString(allBytes: List[int]) -> Tuple[float, str]:
 
 
 if __name__ == "__main__":
-    logging.info(
-        "Benchmarking C++ and Python file reading speed on all folders in benchmarking."
-    )
+   
+    if len(sys.argv) < 2:
+        logging.info("Using ./benchmarking/benchmarkfolders as Benchmark")
+        benchMarkFolder = "./benchmarking/benchmarkfolders"
+    else:
+        benchMarkFolder = sys.argv[1]
     
-    benchMarkFolder = "./benchmarking/benchmarkfolders"
-    cppPath = "./benchmarking/cppBenchmark"
     # 'bytes', 'kilobytes', 'megabytes', 'gigabytes', 'terabytes'
     allBytes = [0, 0, 0, 0, 0]
     fileAmount = 0
-    logging.info("Benchmarking Python...")
+ 
     # Python folder size calculation
     
     folderSizeBytes = 0
@@ -63,5 +64,4 @@ if __name__ == "__main__":
     pythonEndTime = time.time()
     pythonTotalTime = pythonEndTime - pythonStartTime
     logging.info(f"Total size of all folders: {amount} {unit} in {fileAmount} files.")
-    logging.info(f"Finished Benchmarking Python. The calculation took {round(pythonTotalTime,4)} seconds.")
-
+    
